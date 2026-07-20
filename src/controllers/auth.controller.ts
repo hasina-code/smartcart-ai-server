@@ -10,7 +10,7 @@ import { generateToken } from "../utils/generateToken";
 // ==========================
 export const googleLogin = async (
   req: Request,
-  res: Response
+  // res: Response
 ) => {
   try {
 
@@ -326,7 +326,6 @@ user._id.toString()
 
 
 
-// পুরানো cookie delete
 res.clearCookie("token",{
 
 httpOnly:true,
@@ -349,7 +348,7 @@ path:"/",
 
 
 
-// নতুন cookie set
+
 
 res.cookie(
 "smartcart_token",
