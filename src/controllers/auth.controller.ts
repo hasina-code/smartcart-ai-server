@@ -30,14 +30,14 @@ export const googleLogin = async (
 
 
     const token = generateToken({
-      id: user._id,
+      id: user._id.toString(),
       email: user.email,
       role: user.role,
     });
 
 
-    const { password, ...safeUser } =
-      user.toObject() as any;
+    res.clearCookie("token");
+    res.clearCookie("smartcart_token");
 
 
     res.cookie(
@@ -48,28 +48,38 @@ export const googleLogin = async (
         secure: false,
         sameSite: "lax",
         path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       }
     );
 
 
-    res.status(200).json({
-      success: true,
-      message: "Login Successful",
-      user: safeUser,
+    const { password, ...safeUser } =
+      user.toObject() as any;
+
+
+    return res.status(200).json({
+
+      success:true,
+      message:"Login Successful",
+      user:safeUser,
+
     });
 
 
-  } catch (error) {
+  } catch(error){
 
     console.error(error);
 
-    res.status(500).json({
-      success: false,
-      message: "Authentication Failed",
+    return res.status(500).json({
+
+      success:false,
+      message:"Authentication Failed",
+
     });
 
   }
 };
+
 
 
 
@@ -82,114 +92,133 @@ export const registerUser = async (
   res: Response
 ) => {
 
-  try {
-
-    const {
-      name,
-      email,
-      password,
-      photo
-    } = req.body;
+try {
 
 
-    if (!name || !email || !password) {
-
-      return res.status(400).json({
-        success:false,
-        message:"All fields are required",
-      });
-
-    }
+const {
+name,
+email,
+password,
+photo
+}=req.body;
 
 
 
-    const exists = await User.findOne({
-      email
-    });
+if(!name || !email || !password){
 
+return res.status(400).json({
 
-    if(exists){
+success:false,
+message:"All fields are required",
 
-      return res.status(400).json({
-        success:false,
-        message:"User already exists",
-      });
+});
 
-    }
+}
 
 
 
-    const hashedPassword =
-      await bcrypt.hash(password,10);
+const exists =
+await User.findOne({email});
+
+
+if(exists){
+
+return res.status(400).json({
+
+success:false,
+message:"User already exists",
+
+});
+
+}
 
 
 
-    const user = await User.create({
-
-      name,
-      email,
-      password:hashedPassword,
-      photo:photo || "",
-      role:"user",
-
-    });
+const hashedPassword =
+await bcrypt.hash(password,10);
 
 
 
-    const token = generateToken({
+const user =
+await User.create({
 
-      id:user._id,
-      email:user.email,
-      role:user.role,
+name,
+email,
+password:hashedPassword,
+photo:photo || "",
+role:"user",
 
-    });
-
-
-
-    const {
-      password:_,
-      ...safeUser
-    } = user.toObject() as any;
+});
 
 
 
-    res.cookie(
-      "smartcart_token",
-      token,
-      {
-        httpOnly:true,
-        secure:false,
-        sameSite:"lax",
-        path:"/",
-      }
-    );
+const token =
+generateToken({
+
+id:user._id.toString(),
+email:user.email,
+role:user.role,
+
+});
 
 
 
-    res.status(201).json({
-
-      success:true,
-      message:"Registration Successful",
-      user:safeUser,
-
-    });
+res.clearCookie("token");
+res.clearCookie("smartcart_token");
 
 
 
-  } catch(error){
+res.cookie(
+"smartcart_token",
+token,
+{
 
-    console.error(error);
+httpOnly:true,
+secure:false,
+sameSite:"lax",
+path:"/",
+maxAge:7 * 24 * 60 * 60 * 1000,
 
-    res.status(500).json({
+}
 
-      success:false,
-      message:"Registration Failed",
+);
 
-    });
 
-  }
+
+const {
+password:_,
+...safeUser
+}=user.toObject() as any;
+
+
+
+return res.status(201).json({
+
+success:true,
+message:"Registration Successful",
+user:safeUser,
+
+});
+
+
+}catch(error){
+
+console.error(error);
+
+
+return res.status(500).json({
+
+success:false,
+message:"Registration Failed",
+
+});
+
+
+}
 
 };
+
+
 
 
 
@@ -198,8 +227,8 @@ export const registerUser = async (
 // Login User
 // ==========================
 export const loginUser = async (
-  req: Request,
-  res: Response
+req: Request,
+res: Response
 ) => {
 
 
@@ -207,8 +236,8 @@ try {
 
 
 const {
- email,
- password
+email,
+password
 }=req.body;
 
 
@@ -226,9 +255,8 @@ message:"Email and Password are required",
 
 
 
-const user = await User.findOne({
- email
-});
+const user =
+await User.findOne({email});
 
 
 
@@ -242,7 +270,6 @@ message:"User not found",
 });
 
 }
-
 
 
 
@@ -281,9 +308,10 @@ message:"Invalid credentials",
 
 
 
-const token = generateToken({
+const token =
+generateToken({
 
-id:user._id,
+id:user._id.toString(),
 email:user.email,
 role:user.role,
 
@@ -298,12 +326,30 @@ user._id.toString()
 
 
 
-const {
-password:_,
-...safeUser
-}=user.toObject() as any;
+// পুরানো cookie delete
+res.clearCookie("token",{
+
+httpOnly:true,
+secure:false,
+sameSite:"lax",
+path:"/",
+
+});
 
 
+res.clearCookie("smartcart_token",{
+
+httpOnly:true,
+secure:false,
+sameSite:"lax",
+path:"/",
+
+});
+
+
+
+
+// নতুন cookie set
 
 res.cookie(
 "smartcart_token",
@@ -314,6 +360,7 @@ httpOnly:true,
 secure:false,
 sameSite:"lax",
 path:"/",
+maxAge:7 * 24 * 60 * 60 * 1000,
 
 }
 
@@ -321,7 +368,14 @@ path:"/",
 
 
 
-res.status(200).json({
+const {
+password:_,
+...safeUser
+}=user.toObject() as any;
+
+
+
+return res.status(200).json({
 
 success:true,
 message:"Login Successful",
@@ -336,7 +390,7 @@ user:safeUser,
 console.error(error);
 
 
-res.status(500).json({
+return res.status(500).json({
 
 success:false,
 message:"Login Failed",
@@ -348,6 +402,8 @@ message:"Login Failed",
 
 
 };
+
+
 
 
 
@@ -366,8 +422,22 @@ res.clearCookie(
 {
 
 httpOnly:true,
-sameSite:"lax",
 secure:false,
+sameSite:"lax",
+path:"/",
+
+}
+);
+
+
+
+res.clearCookie(
+"token",
+{
+
+httpOnly:true,
+secure:false,
+sameSite:"lax",
 path:"/",
 
 }
@@ -389,6 +459,8 @@ message:"Logout Successful",
 
 
 
+
+
 // ==========================
 // Get Me
 // ==========================
@@ -402,7 +474,7 @@ try{
 
 
 const token =
-(req as any).cookies?.smartcart_token;
+req.cookies?.smartcart_token;
 
 
 
@@ -434,7 +506,7 @@ decoded.id
 
 
 
-res.status(200).json({
+return res.status(200).json({
 
 user
 
@@ -445,7 +517,7 @@ user
 }catch(error){
 
 
-res.status(401).json({
+return res.status(401).json({
 
 user:null
 
@@ -456,6 +528,8 @@ user:null
 
 
 };
+
+
 
 
 
@@ -474,7 +548,7 @@ try{
 
 
 const token =
-req.cookies.smartcart_token;
+req.cookies?.smartcart_token;
 
 
 
@@ -488,7 +562,6 @@ message:"Unauthorized",
 });
 
 }
-
 
 
 
@@ -526,7 +599,6 @@ new:true
 
 
 
-
 return res.status(200).json({
 
 success:true,
@@ -534,8 +606,6 @@ message:"Profile Updated Successfully",
 user,
 
 });
-
-
 
 
 }catch(error){
