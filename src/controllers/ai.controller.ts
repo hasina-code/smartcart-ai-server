@@ -15,7 +15,7 @@ export const chatWithAI = async (
     if (!message) {
       return res.status(400).json({
         success: false,
-        message: "Message is required",
+        // message: "Message is required",
       });
     }
 

@@ -10,7 +10,7 @@ import { generateToken } from "../utils/generateToken";
 // ==========================
 export const googleLogin = async (
   req: Request,
-  // res: Response
+  res: Response
 ) => {
   try {
 
