@@ -54,7 +54,7 @@ export const authMiddleware = (
 
     console.error(
       "AUTH ERROR:",
-      // error
+      error
     );
 
 
