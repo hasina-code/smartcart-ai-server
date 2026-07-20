@@ -8,7 +8,7 @@ import {
   updateProfile
 } from "../controllers/auth.controller";
 
-// const router = Router();
+const router = Router();
 
 router.post("/google", googleLogin);
 router.post("/register", registerUser);
