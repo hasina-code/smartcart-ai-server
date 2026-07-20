@@ -66,8 +66,7 @@ router.get(
 
 
 // All Products
-// Example:
-// /api/products?category=Laptop&sort=low&page=1
+
 router.get(
   "/",
   getAllProducts
