@@ -58,7 +58,7 @@ const productSchema = new Schema<IProduct>(
       default: [],
     },
 
-    // ✅ Add this
+    
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",

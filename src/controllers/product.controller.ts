@@ -247,7 +247,6 @@ export const deleteProduct = async (
       });
     }
 
-    // শুধু Owner Delete করতে পারবে
     if (product.createdBy.toString() !== user.id) {
       return res.status(403).json({
         success: false,

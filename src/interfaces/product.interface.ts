@@ -17,7 +17,7 @@ export interface IProduct {
 
   rating: number;
 
-  // stock: number;
+  stock: number;
 
   tags: string[];
 
